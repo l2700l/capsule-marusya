@@ -4,6 +4,7 @@ from classifier.semantic import SemanticClassifier
 
 class ClassifierService:
     def __init__(self, registry):
+        self.registry = registry
         self.semantic = SemanticClassifier(registry)
     def classify_semantic(self, text: str):
       return self.semantic.classify(text)
@@ -18,7 +19,7 @@ class ClassifierService:
                 "alternatives": [],
             }
 
-        rule_result = classify_rule(text, registry)
+        rule_result = classify_rule(text, self.registry)
 
         if rule_result:
             return {

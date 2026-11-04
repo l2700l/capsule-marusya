@@ -7,6 +7,10 @@ import threading
 import av
 import numpy as np
 import torch
+from num2words import num2words
+import re
+
+
 
 SAMPLE_RATE = 48000
 SPEAKER = "kseniya"
@@ -39,6 +43,12 @@ def _get_model():
 
     return _model
 
+def normalize_numbers(text: str) -> str:
+    return re.sub(
+        r"\d+",
+        lambda m: num2words(int(m.group()), lang="ru"),
+        text,
+    )
 
 def generate_audio(
     text: str,
@@ -59,6 +69,8 @@ def generate_audio(
     model = _get_model()
 
     with _synthesis_lock:
+        text = normalize_numbers(str(text))
+
         audio = model.apply_tts(
             text=text,
             speaker=SPEAKER,

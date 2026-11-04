@@ -1,11 +1,11 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
 
 from tts import find_stream
 
-router = APIRouter(tags=["stream"])
-@router.get("/stream/{stream_id}")
-def get_stream(stream_id: str):
+router = APIRouter(prefix="/stream", tags=["stream"])
+@router.get("")
+def get_stream(stream_id: str | None = Query(...)):
     path = find_stream(stream_id)
 
     if path is None:
@@ -15,4 +15,7 @@ def get_stream(stream_id: str):
         path,
         media_type="audio/ogg",
         filename=f"{stream_id}.ogg",
+        headers={
+            "Content-Disposition": "inline",
+        }
     )

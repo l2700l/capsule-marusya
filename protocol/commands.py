@@ -19,17 +19,14 @@ def raw_command(command_type: str, **fields: Any) -> dict[str, Any]:
 
 def tts(text: str, *, blocking: bool = True, normalize: bool = True,
         force_say: bool = False, kws_skip: Any = None, encoder: str = "opus",
-        encoder_bitrate: int | None = None, encoder_frame_size: int | None = None,
+        encoder_bitrate: int | None = 32, encoder_frame_size: int | None = None,
         model_name: str | None = None, long_reader_request: bool = False,
         speed: float = 1.0, stream_id: str | None = None) -> dict[str, Any]:
     stream_id = stream_id or str(uuid.uuid4())
 
     audio = generate_audio(
         text,
-        encoder=encoder,
-        encoder_bitrate=encoder_bitrate,
-        encoder_frame_size=encoder_frame_size,
-        model_name=model_name,
+        bitrate=encoder_bitrate,
         speed=speed,
         normalize=normalize,
     )

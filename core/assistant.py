@@ -1,5 +1,7 @@
 
+import inspect
 import io
+import re
 import time
 import wave
 import threading
@@ -9,6 +11,7 @@ import torch
 
 from silero_vad import load_silero_vad, VADIterator
 
+from skills.base import SkillRequest
 
 SAMPLE_RATE = 16000
 FRAME_SIZE = 512  # 32 ms at 16 kHz
@@ -17,16 +20,17 @@ MAX_RECORDING_SECONDS = 20
 
 class AssistantAudioService:
 
-    def __init__(self, stt, classifier):
+    def __init__(self, stt, classifier, registry, context_manager):
         self.stt = stt
         self.classifier = classifier
-
+        self.registry = registry
+        self.context_manager = context_manager
         self.model = load_silero_vad()
-
+        self.pending_responses = {}
         self.lock = threading.Lock()
         self.session = None
 
-    def _new_session(self, session_id):
+    def new_session(self, session_id):
         self.model.reset_states()
         self.session = {
             "id": session_id,
@@ -117,7 +121,8 @@ class AssistantAudioService:
 
         return False
 
-    def _recognize(self, pcm):
+    async def _recognize(self, pcm, context_id):
+
         wav_data = self._build_wav(pcm)
 
         stt_result = self.stt.recognize(
@@ -127,14 +132,17 @@ class AssistantAudioService:
 
         if isinstance(stt_result, str):
             text = stt_result
+
         elif isinstance(stt_result, dict):
             text = (
                 stt_result.get("text")
                 or stt_result.get("transcription")
                 or stt_result.get("recognized_text")
             )
+
         else:
             text = None
+
         if not text or not text.strip():
             return {
                 "text": None,
@@ -145,20 +153,41 @@ class AssistantAudioService:
         text = text.strip()
 
         classification = self.classifier.classify(text)
+
         print(text, classification)
+
+        dispatched = await self._dispatch(
+            text=text,
+            stt_result=stt_result,
+            classification=classification,
+            context_id=context_id,
+        )
 
         return {
             "text": text,
             "stt": stt_result,
             "classification": classification,
+            "dispatched": dispatched,
         }
 
-    def process_chunk(self, session_id, audio_data, start=False):
+    async def process_chunk(
+        self,
+        session_id,
+        audio_data,
+        start=False,
+        context_id=None,
+    ):
+
+        pcm_to_recognize = None
 
         with self.lock:
 
             if start:
-                self._new_session(session_id)
+                self.new_session(session_id)
+                self.pending_responses.pop(
+                    context_id or session_id,
+                    None,
+                )
 
             session = self.session
 
@@ -181,15 +210,77 @@ class AssistantAudioService:
                     "finished": False,
                 }
 
-            try:
-                result = self._recognize(session["pcm"])
-                print(6, result)
-                return {
-                    "status": 6,
-                    "finished": True,
-                    "result": result,
-                }
+            pcm_to_recognize = bytes(session["pcm"])
 
-            finally:
-                self.session = None
-                self.model.reset_states()
+            # Завершаем аудиосессию,
+            # но не диалоговый контекст.
+            self.session = None
+            self.model.reset_states()
+
+        result = await self._recognize(
+            pcm_to_recognize,
+            context_id or session_id,
+        )
+
+        dispatched = result.get("dispatched")
+        response = dispatched.get("response") if dispatched else None
+        print('response', response)
+        if response is not None:
+            with self.lock:
+                self.pending_responses[context_id or session_id] = response
+
+        return {
+            "status": 6,
+            "finished": True,
+            "result": result,
+        }
+    def get_response(self, context_id):
+        with self.lock:
+            return self.pending_responses.pop(context_id, None)
+    async def _dispatch(self, text, stt_result, classification, context_id):
+
+      context = self.context_manager.get(context_id)
+      print(context)
+      skill_name = (
+          context["active_skill"]
+          or classification["skill"]
+      )
+      definition = self.registry.get(skill_name)
+
+      if definition is None or definition.handler is None:
+          return None
+      WAKE_WORDS = (
+          "маруся",
+          "морозье",
+          "морозия",
+      )
+
+      text = re.sub(
+          rf"^\s*(?:{'|'.join(WAKE_WORDS)})\b[\s,!.?—-]*",
+          "",
+          text,
+          count=1,
+          flags=re.IGNORECASE,
+      ).strip()
+      skill_request = SkillRequest(
+          text=text,
+          session_id=context_id,
+          classification=classification,
+          context=self.context_manager,
+          stt_result=stt_result,
+      )
+
+      result = definition.handler(skill_request)
+
+      if inspect.isawaitable(result):
+          result = await result
+
+      # Навык возвращает готовый Response.
+      if hasattr(result, "to_dict"):
+          result = result.to_dict()
+
+      return {
+          "skill": skill_name,
+          "response": result,
+          "active_skill": context["active_skill"],
+      }
