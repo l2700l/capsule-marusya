@@ -119,12 +119,12 @@ RULES = {
 }
 
 
-def classify_rule(text: str) -> str | None:
+def classify_rule(text: str, registry) -> str | None:
     text = text.lower().strip()
 
     matches = []
-
-    for skill, patterns in RULES.items():
+    rules = registry.get_rules()
+    for skill, patterns in rules.items():
         for pattern in patterns:
             if re.search(pattern, text):
                 matches.append(skill)

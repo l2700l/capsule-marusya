@@ -3,8 +3,8 @@ from classifier.semantic import SemanticClassifier
 
 
 class ClassifierService:
-    def __init__(self):
-        self.semantic = SemanticClassifier()
+    def __init__(self, registry):
+        self.semantic = SemanticClassifier(registry)
     def classify_semantic(self, text: str):
       return self.semantic.classify(text)
     def classify(self, text: str) -> dict:
@@ -18,7 +18,7 @@ class ClassifierService:
                 "alternatives": [],
             }
 
-        rule_result = classify_rule(text)
+        rule_result = classify_rule(text, registry)
 
         if rule_result:
             return {

@@ -1,22 +1,18 @@
-import json
 import os
-from pathlib import Path
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
 
 class SemanticClassifier:
-    def __init__(self):
+
+    def __init__(self, registry):
         model_name = os.getenv(
             "CLASSIFIER_MODEL",
             "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
         )
 
-        examples_path = Path(__file__).parent / "examples.json"
-
-        with open(examples_path, "r", encoding="utf-8") as file:
-            examples = json.load(file)
+        examples = registry.get_examples()
 
         self.model = SentenceTransformer(model_name)
 
@@ -55,8 +51,6 @@ class SemanticClassifier:
 
         for skill, vectors in self.embeddings.items():
             similarities = np.dot(vectors, query)
-
-            # Лучшее совпадение среди примеров навыка
             scores[skill] = float(np.max(similarities))
 
         ranked = sorted(

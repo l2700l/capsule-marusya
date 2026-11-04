@@ -11,11 +11,13 @@ from api.routes.stream import router as stream_router
 from stt import STTService
 from classifier import ClassifierService
 from core.assistant import AssistantAudioService
+from skills import load_skills
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    app.state.registry = load_skills()
     app.state.stt = STTService()
-    app.state.classifier = ClassifierService()
+    app.state.classifier = ClassifierService(app.state.registry)
     app.state.assistant_audio = AssistantAudioService(
         stt=app.state.stt,
         classifier=app.state.classifier,
