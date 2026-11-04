@@ -6,6 +6,7 @@ from api.routes.stt import router as stt_router
 from api.routes.classifier import router as classifier_router
 from api.routes.tts import router as tts_router
 from api.routes.phrase import router as phrase_router
+from api.routes.stream import router as stream_router
 
 from stt import STTService
 from classifier import ClassifierService
@@ -34,3 +35,4 @@ app.include_router(stt_router)
 app.include_router(classifier_router)
 app.include_router(tts_router)
 app.include_router(phrase_router)
+app.include_router(stream_router)
