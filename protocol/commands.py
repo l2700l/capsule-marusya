@@ -9,7 +9,7 @@ import json
 import time
 import uuid
 from typing import Any, Mapping
-from ..tts import generate_audio, save_stream
+from tts import generate_audio, save_stream
 
 
 def raw_command(command_type: str, **fields: Any) -> dict[str, Any]:

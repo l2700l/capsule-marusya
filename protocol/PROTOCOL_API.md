@@ -5,7 +5,7 @@
 ## Быстрый пример
 
 ```python
-from capsule_proxy.protocol import Response
+from capsule_marusya.protocol import Response
 
 response = (
     Response(
