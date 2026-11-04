@@ -5,3 +5,8 @@ faster-whisper
 python-multipart
 sentence-transformers
 numpy
+torch
+av
+sounddevice
+requests
+omegaconf

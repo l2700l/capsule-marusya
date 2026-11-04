@@ -4,6 +4,8 @@ from contextlib import asynccontextmanager
 from api.routes.health import router as health_router
 from api.routes.stt import router as stt_router
 from api.routes.classifier import router as classifier_router
+from api.routes.tts import router as tts_router
+
 from stt import STTService
 from classifier import ClassifierService
 
@@ -25,3 +27,4 @@ app = FastAPI(
 app.include_router(health_router)
 app.include_router(stt_router)
 app.include_router(classifier_router)
+app.include_router(tts_router)
