@@ -1,3 +1,7 @@
 fastapi
 uvicorn[standard]
 python-dotenv
+faster-whisper
+python-multipart
+sentence-transformers
+numpy
