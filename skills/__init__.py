@@ -7,6 +7,7 @@ from skills.voice_repeat.skill import SKILL as voice_repeat
 from skills.bluetooth.skill import SKILL as bluetooth
 from skills.pretty_mode.skill import SKILL as pretty_mode
 from skills.time.skill import SKILL as time
+from skills.skill_list.skill import SKILL as skill_list
 
 def load_skills():
 
@@ -16,6 +17,7 @@ def load_skills():
         bluetooth,
         pretty_mode,
         time,
+        skill_list,
     ]:
         registry.register(skill)
 
