@@ -8,6 +8,7 @@ from skills.bluetooth.skill import SKILL as bluetooth
 from skills.pretty_mode.skill import SKILL as pretty_mode
 from skills.time.skill import SKILL as time
 from skills.skill_list.skill import SKILL as skill_list
+from skills.unknown.skill import SKILL as unknown
 
 def load_skills():
 
@@ -18,6 +19,7 @@ def load_skills():
         pretty_mode,
         time,
         skill_list,
+        unknown,
     ]:
         registry.register(skill)
 
