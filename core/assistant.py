@@ -152,11 +152,12 @@ class AssistantAudioService:
             }
 
         text = text.strip()
-        if self.session.remove_first_word:
+        if self.session["remove_wake_word"]:
             text = self._normalize_stt_text(
                 text,
                 remove_first_word=True,
             )
+        self.session = None
         classification = self.classifier.classify(text)
 
         print(text, classification)
@@ -217,10 +218,6 @@ class AssistantAudioService:
                 }
 
             pcm_to_recognize = bytes(session["pcm"])
-
-            # Завершаем аудиосессию,
-            # но не диалоговый контекст.
-            self.session = None
             self.model.reset_states()
 
         result = await self._recognize(
@@ -243,7 +240,7 @@ class AssistantAudioService:
     def get_response(self, context_id):
         with self.lock:
             return self.pending_responses.pop(context_id, None)
-    def _normalize_stt_text(text: str, remove_first_word: bool = False) -> str:
+    def _normalize_stt_text(self, text: str, remove_first_word: bool = False) -> str:
       text = text.strip()
 
       if remove_first_word:
