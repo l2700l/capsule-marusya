@@ -28,7 +28,14 @@ async def phrase_create(
 
     if params is None or chunk is None:
         raise HTTPException(400, "Missing params or chunk")
+    try:
+        params_data = json.loads(params) if isinstance(params, str) else {}
+    except json.JSONDecodeError:
+        params_data = {}
 
+    remove_wake_word = (
+        params_data.get("kw_params", {}).get("keyword") == "marusya"
+    )
     try:
         if isinstance(chunk, UploadFile):
             audio_data = await chunk.read()
@@ -42,6 +49,7 @@ async def phrase_create(
             audio_data=audio_data,
             start=True,
             context_id=request.query_params.get("device_id") or session_id,
+            remove_wake_word=remove_wake_word
         )
 
         print(result)

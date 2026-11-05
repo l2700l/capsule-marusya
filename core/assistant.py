@@ -30,7 +30,7 @@ class AssistantAudioService:
         self.lock = threading.Lock()
         self.session = None
 
-    def new_session(self, session_id):
+    def new_session(self, session_id, remove_wake_word=False):
         self.model.reset_states()
         self.session = {
             "id": session_id,
@@ -38,6 +38,7 @@ class AssistantAudioService:
             "frame_buffer": bytearray(),
             "started_at": time.monotonic(),
             "speech_started": False,
+            "remove_wake_word": remove_wake_word,
             "vad": VADIterator(
                 self.model,
                 threshold=0.5,
@@ -151,7 +152,11 @@ class AssistantAudioService:
             }
 
         text = text.strip()
-
+        if self.session.remove_first_word:
+            text = self._normalize_stt_text(
+                text,
+                remove_first_word=True,
+            )
         classification = self.classifier.classify(text)
 
         print(text, classification)
@@ -176,6 +181,7 @@ class AssistantAudioService:
         audio_data,
         start=False,
         context_id=None,
+        remove_wake_word=False
     ):
 
         pcm_to_recognize = None
@@ -183,7 +189,7 @@ class AssistantAudioService:
         with self.lock:
 
             if start:
-                self.new_session(session_id)
+                self.new_session(session_id, remove_wake_word=remove_wake_word)
                 self.pending_responses.pop(
                     context_id or session_id,
                     None,
@@ -224,7 +230,7 @@ class AssistantAudioService:
 
         dispatched = result.get("dispatched")
         response = dispatched.get("response") if dispatched else None
-        print('response', response)
+
         if response is not None:
             with self.lock:
                 self.pending_responses[context_id or session_id] = response
@@ -237,6 +243,13 @@ class AssistantAudioService:
     def get_response(self, context_id):
         with self.lock:
             return self.pending_responses.pop(context_id, None)
+    def _normalize_stt_text(text: str, remove_first_word: bool = False) -> str:
+      text = text.strip()
+
+      if remove_first_word:
+          text = re.sub(r"^\S+\s*", "", text, count=1)
+
+      return text.strip()
     async def _dispatch(self, text, stt_result, classification, context_id):
 
       context = self.context_manager.get(context_id)
@@ -249,19 +262,8 @@ class AssistantAudioService:
 
       if definition is None or definition.handler is None:
           return None
-      WAKE_WORDS = (
-          "маруся",
-          "морозье",
-          "морозия",
-      )
+      text = text.strip()
 
-      text = re.sub(
-          rf"^\s*(?:{'|'.join(WAKE_WORDS)})\b[\s,!.?—-]*",
-          "",
-          text,
-          count=1,
-          flags=re.IGNORECASE,
-      ).strip()
       skill_request = SkillRequest(
           text=text,
           session_id=context_id,
