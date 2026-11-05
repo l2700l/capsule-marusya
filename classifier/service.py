@@ -3,9 +3,9 @@ from classifier.semantic import SemanticClassifier
 
 
 class ClassifierService:
-    def __init__(self, registry):
+    def __init__(self, registry, model):
         self.registry = registry
-        self.semantic = SemanticClassifier(registry)
+        self.semantic = SemanticClassifier(registry, model)
     def classify_semantic(self, text: str):
       return self.semantic.classify(text)
     def classify(self, text: str) -> dict:

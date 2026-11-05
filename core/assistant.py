@@ -20,11 +20,12 @@ MAX_RECORDING_SECONDS = 20
 
 class AssistantAudioService:
 
-    def __init__(self, stt, classifier, registry, context_manager):
+    def __init__(self, stt, classifier, registry, context_manager, semantic_model):
         self.stt = stt
         self.classifier = classifier
         self.registry = registry
         self.context_manager = context_manager
+        self.semantic_model = semantic_model
         self.model = load_silero_vad()
         self.pending_responses = {}
         self.lock = threading.Lock()
@@ -267,6 +268,7 @@ class AssistantAudioService:
           classification=classification,
           context=self.context_manager,
           stt_result=stt_result,
+          semantic_model = self.semantic_model
       )
 
       result = definition.handler(skill_request)

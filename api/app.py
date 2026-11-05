@@ -10,21 +10,25 @@ from api.routes.stream import router as stream_router
 
 from stt import STTService
 from classifier import ClassifierService
+from classifier.model import ModelProvider
 from core.assistant import AssistantAudioService
 from core.context import ContextManager 
 from skills import load_skills
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    model_provider = ModelProvider()
+    app.state.model = model_provider.load()
     app.state.context_manager = ContextManager()
     app.state.registry = load_skills()
     app.state.stt = STTService()
-    app.state.classifier = ClassifierService(app.state.registry)
+    app.state.classifier = ClassifierService(app.state.registry, app.state.model)
     app.state.assistant_audio = AssistantAudioService(
         stt=app.state.stt,
         registry=app.state.registry,
         classifier=app.state.classifier,
         context_manager=app.state.context_manager,
+        semantic_model=app.state.model
     )
     yield
 

@@ -6,15 +6,11 @@ from sentence_transformers import SentenceTransformer
 
 class SemanticClassifier:
 
-    def __init__(self, registry):
-        model_name = os.getenv(
-            "CLASSIFIER_MODEL",
-            "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
-        )
+    def __init__(self, registry, model):
 
         examples = registry.get_examples()
 
-        self.model = SentenceTransformer(model_name)
+        self.model = model
 
         self.threshold = float(
             os.getenv("CLASSIFIER_THRESHOLD", "0.55")

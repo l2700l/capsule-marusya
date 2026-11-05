@@ -6,16 +6,16 @@ from classifier.registry import SkillRegistry
 from skills.voice_repeat.skill import SKILL as voice_repeat
 from skills.bluetooth.skill import SKILL as bluetooth
 from skills.pretty_mode.skill import SKILL as pretty_mode
-
+from skills.time.skill import SKILL as time
 
 def load_skills():
 
     registry = SkillRegistry()
-
     for skill in [
         voice_repeat,
         bluetooth,
         pretty_mode,
+        time,
     ]:
         registry.register(skill)
 
