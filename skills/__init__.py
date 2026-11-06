@@ -10,6 +10,7 @@ from skills.time.skill import SKILL as time
 from skills.skill_list.skill import SKILL as skill_list
 from skills.unknown.skill import SKILL as unknown
 from skills.till.skill import SKILL as till
+from skills.calculator.skill import SKILL as calculator
 
 def load_skills():
 
@@ -22,6 +23,7 @@ def load_skills():
         skill_list,
         unknown,
         till,
+        calculator,
     ]:
         registry.register(skill)
 
