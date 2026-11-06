@@ -2,6 +2,7 @@
 import re
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
+from num2words import num2words
 
 from classifier.base import SkillDefinition, BaseSkill
 
