@@ -9,6 +9,7 @@ from skills.pretty_mode.skill import SKILL as pretty_mode
 from skills.time.skill import SKILL as time
 from skills.skill_list.skill import SKILL as skill_list
 from skills.unknown.skill import SKILL as unknown
+from skills.till.skill import SKILL as till
 
 def load_skills():
 
@@ -20,6 +21,7 @@ def load_skills():
         time,
         skill_list,
         unknown,
+        till,
     ]:
         registry.register(skill)
 
