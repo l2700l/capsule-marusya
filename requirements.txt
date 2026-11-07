@@ -12,3 +12,4 @@ requests
 omegaconf
 silero-vad
 num2words
+httpx

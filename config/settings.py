@@ -24,3 +24,5 @@ CLASSIFIER_MARGIN = float(os.getenv("CLASSIFIER_MARGIN", 0.05))
 # TTS
 TTS_ENGINE = os.getenv("TTS_ENGINE", "silero").strip().lower()
 TTS_VOICE_DIR = PROJECT_DIR / os.getenv("TTS_VOICE_DIR", "tts/voices/marusya")
+
+SERVER_URL = os.getenv("SERVER_URL", "http://localhost:8082")
