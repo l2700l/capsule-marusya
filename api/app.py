@@ -8,6 +8,7 @@ from api.routes.tts import router as tts_router
 from api.routes.phrase import router as phrase_router
 from api.routes.stream import router as stream_router
 
+# from tts.qwen import preload_model
 from stt import STTService
 from classifier import ClassifierService
 from classifier.model import ModelProvider
@@ -17,6 +18,7 @@ from skills import load_skills
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # preload_model()
     model_provider = ModelProvider()
     app.state.model = model_provider.load()
     app.state.context_manager = ContextManager()

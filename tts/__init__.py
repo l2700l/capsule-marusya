@@ -4,6 +4,7 @@ from .streams import (
     find_stream,
     stream_id_from_request,
     serve_stream,
+    get_stream_source
 )
 
 __all__ = [
@@ -12,4 +13,5 @@ __all__ = [
     "find_stream",
     "stream_id_from_request",
     "serve_stream",
+    "get_stream_source"
 ]

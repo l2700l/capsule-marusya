@@ -1,21 +1,24 @@
 from fastapi import APIRouter, HTTPException, Query
-from fastapi.responses import FileResponse
+from fastapi.responses import StreamingResponse
 
-from tts import find_stream
+from tts import get_stream_source
 
 router = APIRouter(prefix="/stream", tags=["stream"])
-@router.get("")
-def get_stream(stream_id: str | None = Query(...)):
-    path = find_stream(stream_id)
 
-    if path is None:
+
+@router.get("")
+def get_stream(stream_id: str = Query(...)):
+    source = get_stream_source(stream_id)
+
+    if source is None:
         raise HTTPException(status_code=404, detail="Stream not found")
 
-    return FileResponse(
-        path,
+    return StreamingResponse(
+        source,
         media_type="audio/ogg",
-        filename=f"{stream_id}.ogg",
         headers={
             "Content-Disposition": "inline",
-        }
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },
     )

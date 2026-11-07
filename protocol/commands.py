@@ -10,28 +10,55 @@ import time
 import uuid
 from typing import Any, Mapping
 from tts import generate_audio, save_stream
-
+from tts.qwen import start_stream
 
 def raw_command(command_type: str, **fields: Any) -> dict[str, Any]:
     """Build a command while preserving the firmware's ``type`` field."""
     return {**fields, "type": command_type}
 
 
-def tts(text: str, *, blocking: bool = True, normalize: bool = True,
-        force_say: bool = False, kws_skip: Any = None, encoder: str = "opus",
-        encoder_bitrate: int | None = 32, encoder_frame_size: int | None = None,
-        model_name: str | None = None, long_reader_request: bool = False,
-        speed: float = 1.0, stream_id: str | None = None) -> dict[str, Any]:
+
+def tts(
+    text: str,
+    *,
+    blocking: bool = True,
+    normalize: bool = True,
+    force_say: bool = False,
+    kws_skip: Any = None,
+    encoder: str = "opus",
+    encoder_bitrate: int | None = 32,
+    encoder_frame_size: int | None = None,
+    model_name: str | None = None,
+    long_reader_request: bool = False,
+    speed: float = 1.0,
+    stream_id: str | None = None,
+    engine: str = "silero",
+) -> dict[str, Any]:
     stream_id = stream_id or str(uuid.uuid4())
 
-    audio = generate_audio(
-        text,
-        bitrate=encoder_bitrate,
-        speed=speed,
-        normalize=normalize,
-    )
+    if engine == "qwen":
+        if speed != 1.0:
+            raise ValueError(
+                "Qwen streaming currently supports only speed=1.0"
+            )
 
-    save_stream(stream_id, audio)
+        start_stream(
+            text,
+            stream_id,
+        )
+
+    elif engine == "silero":
+        audio = generate_audio(
+            text,
+            bitrate=encoder_bitrate or 32,
+            speed=speed,
+            normalize=normalize,
+        )
+
+        save_stream(stream_id, audio)
+
+    else:
+        raise ValueError(f"Unknown TTS engine: {engine}")
 
     return raw_command(
         "tts",
