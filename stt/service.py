@@ -2,14 +2,14 @@ import os
 import tempfile
 
 from stt.engine import STTEngine
-
+from config.settings import STT_MODEL, STT_DEVICE, STT_COMPUTE_TYPE
 
 class STTService:
     def __init__(self):
         self.engine = STTEngine(
-            model_size=os.getenv("STT_MODEL", "small"),
-            device=os.getenv("STT_DEVICE", "cpu"),
-            compute_type=os.getenv("STT_COMPUTE_TYPE", "int8"),
+            model_size=STT_MODEL,
+            device=STT_DEVICE,
+            compute_type=STT_COMPUTE_TYPE,
         )
 
     def recognize(self, audio: bytes, suffix: str = ".ogg") -> dict:

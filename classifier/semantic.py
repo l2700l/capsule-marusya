@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
-
+from config.settings import CLASSIFIER_MARGIN, CLASSIFIER_THRESHOLD
 
 class SemanticClassifier:
 
@@ -12,13 +12,9 @@ class SemanticClassifier:
 
         self.model = model
 
-        self.threshold = float(
-            os.getenv("CLASSIFIER_THRESHOLD", "0.55")
-        )
+        self.threshold = CLASSIFIER_THRESHOLD
 
-        self.margin = float(
-            os.getenv("CLASSIFIER_MARGIN", "0.05")
-        )
+        self.margin = CLASSIFIER_MARGIN
 
         self.skills = {}
         self.embeddings = {}

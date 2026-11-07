@@ -9,10 +9,11 @@ from mlx_audio.tts.utils import load_model
 
 from .streams import OggOpusEncoder, AudioStream, create_audio_stream
 import logging
+from config.settings import TTS_VOICE_DIR
 
 
 MODEL_ID = "mlx-community/Qwen3-TTS-12Hz-1.7B-Base-8bit"
-VOICE_DIR = Path(__file__).resolve().parent / "voices" / "marusya"
+VOICE_DIR = TTS_VOICE_DIR
 REFERENCE_AUDIO = VOICE_DIR / "reference.wav"
 REFERENCE_TEXT = VOICE_DIR / "reference.txt"
 

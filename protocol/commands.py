@@ -9,9 +9,8 @@ import json
 import time
 import uuid
 from typing import Any, Mapping
-from tts import generate_audio, save_stream
-from tts.qwen import start_stream
-
+from tts import generate_audio, save_stream, start_stream
+from config.settings import TTS_ENGINE
 def raw_command(command_type: str, **fields: Any) -> dict[str, Any]:
     """Build a command while preserving the firmware's ``type`` field."""
     return {**fields, "type": command_type}
@@ -32,11 +31,11 @@ def tts(
     long_reader_request: bool = False,
     speed: float = 1.0,
     stream_id: str | None = None,
-    engine: str = "silero",
+
 ) -> dict[str, Any]:
     stream_id = stream_id or str(uuid.uuid4())
 
-    if engine == "qwen":
+    if TTS_ENGINE.startswith("qwen"):
         if speed != 1.0:
             raise ValueError(
                 "Qwen streaming currently supports only speed=1.0"
@@ -47,7 +46,7 @@ def tts(
             stream_id,
         )
 
-    elif engine == "silero":
+    elif TTS_ENGINE == "silero":
         audio = generate_audio(
             text,
             bitrate=encoder_bitrate or 32,
@@ -58,7 +57,7 @@ def tts(
         save_stream(stream_id, audio)
 
     else:
-        raise ValueError(f"Unknown TTS engine: {engine}")
+        raise ValueError(f"Unknown TTS engine: {TTS_ENGINE}")
 
     return raw_command(
         "tts",

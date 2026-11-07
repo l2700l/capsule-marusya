@@ -8,17 +8,18 @@ from api.routes.tts import router as tts_router
 from api.routes.phrase import router as phrase_router
 from api.routes.stream import router as stream_router
 
-# from tts.qwen import preload_model
+from tts import preload_model
 from stt import STTService
 from classifier import ClassifierService
 from classifier.model import ModelProvider
 from core.assistant import AssistantAudioService
 from core.context import ContextManager 
 from skills import load_skills
+from config.settings import DEBUG
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # preload_model()
+    preload_model()
     model_provider = ModelProvider()
     app.state.model = model_provider.load()
     app.state.context_manager = ContextManager()
@@ -40,6 +41,7 @@ app = FastAPI(
     description="Voice assistant backend for VK Capsule Neo",
     version="0.1.0",
     lifespan=lifespan,
+    debug=DEBUG
 )
 
 app.include_router(health_router)

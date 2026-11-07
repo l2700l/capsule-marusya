@@ -1,10 +1,10 @@
 import uvicorn
-
+from config.settings import HOST, PORT
 
 if __name__ == "__main__":
     uvicorn.run(
         "api.app:app",
-        host="0.0.0.0",
-        port=8090,
+        host=HOST,
+        port=PORT,
         reload=True,
     )
