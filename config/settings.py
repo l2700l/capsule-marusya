@@ -26,3 +26,5 @@ TTS_ENGINE = os.getenv("TTS_ENGINE", "silero").strip().lower()
 TTS_VOICE_DIR = PROJECT_DIR / os.getenv("TTS_VOICE_DIR", "tts/voices/marusya")
 
 SERVER_URL = os.getenv("SERVER_URL", "http://localhost:8082")
+
+WEATHER_CITY = os.getenv("WEATHER_CITY", "Москва")
