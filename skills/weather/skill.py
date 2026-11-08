@@ -77,22 +77,6 @@ class WeatherSkill(BaseSkill):
         99: "гроза с сильным градом",
     }
 
-    def __init__(self):
-        self.matcher = None
-
-    def get_matcher(self, request: SkillRequest):
-        if self.matcher is None:
-            self.matcher = SemanticMatcher(
-                model=request.semantic_model,
-                intents={
-                    "weather": self.definition.examples,
-                },
-                threshold=0.55,
-                margin=0.05,
-            )
-
-        return self.matcher
-
     @staticmethod
     def http_get(url: str, params: dict) -> dict:
         query = urlencode(params)
@@ -327,17 +311,11 @@ class WeatherSkill(BaseSkill):
     async def handle(self, request: SkillRequest):
         text = request.text.strip().lower().replace("ё", "е")
 
-        matcher = self.get_matcher(request)
-        intent = matcher.classify(text)
-
         response = Response(
             skill="weather",
-            intent=intent,
+            intent="weather",
             asr_text=text,
         )
-
-        if intent != "weather":
-            return response
 
         city, day_offset, period = self.parse_request(text)
         city = city or WEATHER_CITY
