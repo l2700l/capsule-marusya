@@ -10,6 +10,7 @@ from skills.till.skill import SKILL as till
 from skills.calculator.skill import SKILL as calculator
 from skills.controls.skill import SKILL as controls
 from skills.weather.skill import SKILL as weather
+from skills.translation.skill import SKILL as translation
 
 def load_skills():
 
@@ -24,7 +25,8 @@ def load_skills():
         till,
         calculator,
         controls,
-        weather
+        weather,
+        translation
     ]:
         registry.register(skill)
 
