@@ -1,8 +1,11 @@
 
 from __future__ import annotations
 
+import re
 import threading
 from pathlib import Path
+
+from num2words import num2words
 
 import mlx.core as mx
 from mlx_audio.tts.utils import load_model
@@ -50,6 +53,13 @@ def preload_model() -> None:
         time.perf_counter() - started,
     )
 
+def normalize_numbers(text: str) -> str:
+    return re.sub(
+        r"-?\d+",
+        lambda m: num2words(int(m.group()), lang="ru"),
+        text,
+    )
+
 def generate_stream(
     text: str,
     output: AudioStream,
@@ -84,7 +94,8 @@ def generate_stream(
         layout="mono",
         rate=OUTPUT_SAMPLE_RATE,
     )
-
+    text = normalize_numbers(text)
+    print(text)
     try:
         with _generation_lock:
             generator = model.generate(

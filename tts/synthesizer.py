@@ -45,7 +45,7 @@ def _get_model():
 
 def normalize_numbers(text: str) -> str:
     return re.sub(
-        r"\d+",
+        r"-?\d+",
         lambda m: num2words(int(m.group()), lang="ru"),
         text,
     )

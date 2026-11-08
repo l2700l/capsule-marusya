@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import logging
+import re
 import threading
 import time
 from pathlib import Path
 
 import av
+from num2words import num2words
 import numpy as np
 import torch
 
@@ -76,6 +78,13 @@ def preload_model() -> None:
         time.perf_counter() - started,
     )
 
+def normalize_numbers(text: str) -> str:
+    return re.sub(
+        r"-?\d+",
+        lambda m: num2words(int(m.group()), lang="ru"),
+        text,
+    )
+
 
 def generate_stream(
     text: str,
@@ -109,7 +118,7 @@ def generate_stream(
         layout="mono",
         rate=OUTPUT_SAMPLE_RATE,
     )
-
+    text = normalize_numbers(text)
     try:
         with _generation_lock:
             generator = model.generate_voice_clone_streaming(
