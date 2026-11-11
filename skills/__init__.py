@@ -12,6 +12,7 @@ from skills.controls.skill import SKILL as controls
 from skills.weather.skill import SKILL as weather
 from skills.translation.skill import SKILL as translation
 from skills.night_mode.skill import SKILL as night_mode
+from skills.alarms.skill import SKILL as alarms
 
 def load_skills():
 
@@ -28,7 +29,8 @@ def load_skills():
         controls,
         weather,
         translation,
-        night_mode
+        night_mode,
+        alarms
     ]:
         registry.register(skill)
 
