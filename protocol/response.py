@@ -7,7 +7,7 @@ from typing import Any, Mapping
 
 from . import commands as cmd
 from .display import show_text
-
+from .music import Track, Playlist
 
 class Response:
     """Fluent builder for the ``qid`` / ``result`` protocol envelope.
@@ -136,3 +136,24 @@ class Response:
 
     def to_json(self, *, indent: int | None = None) -> str:
         return json.dumps(self.to_dict(), ensure_ascii=False, indent=indent, separators=None if indent else (",", ":"))
+
+    def play_track(
+        self,
+        track: Track,
+        *,
+        query: str = "",
+        **options: Any,
+    ) -> "Response":
+        options.setdefault("player_type", "serp")
+        playlist = Playlist(
+            tracks=[track],
+            query=query,
+            **options,
+        )
+        return self.add(playlist.to_command())
+    def play_playlist(
+        self,
+        playlist: Playlist,
+    ) -> "Response":
+        """Play a queue of tracks."""
+        return self.add(playlist.to_command())
