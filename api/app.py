@@ -7,6 +7,7 @@ from api.routes.classifier import router as classifier_router
 from api.routes.tts import router as tts_router
 from api.routes.phrase import router as phrase_router
 from api.routes.stream import router as stream_router
+from api.routes.music_stream import router as music_stream_router
 
 from tts import preload_model
 from stt import STTService
@@ -50,3 +51,4 @@ app.include_router(classifier_router)
 app.include_router(tts_router)
 app.include_router(phrase_router)
 app.include_router(stream_router)
+app.include_router(music_stream_router)
